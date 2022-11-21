@@ -45,6 +45,8 @@ spec:
       containers:
       - name: mysql
         image: bportilho/projetok8s-database:1.0
+        args:
+        - "--ignore-db-dir=lost+found"
         imagePullPolicy: Always
         ports:
         - containerPort: 3306
