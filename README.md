@@ -1,0 +1,1 @@
+Projeto base com Kubernetes, Docker, PHP e MySQL

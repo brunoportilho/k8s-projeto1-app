@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-local
+  labels:
+    type: mysql-local
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: mysql-local
+  hostPath:
+    path: /meubanco/
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-local
+spec:
+  storageClassName: mysql-local
+  resources:
+    requests:
+      storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: bportilho/projetok8s-database:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-local
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-local
+        persistentVolumeClaim:
+          claimName: mysql-local
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    app: php
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: bportilho/projetok8s-backend:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
